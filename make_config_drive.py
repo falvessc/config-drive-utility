@@ -3,7 +3,6 @@
 # nembery@juniper.net
 
 import yaml
-
 import builder_utils
 
 with open('device_params.yaml', 'r') as f:
@@ -11,6 +10,7 @@ with open('device_params.yaml', 'r') as f:
 
     print configuration
     files = dict()
+    files["/boot/loader.conf"] = ''
 
     junos_config = builder_utils.get_junos_default_config_template(configuration)
     if junos_config is not None:

@@ -1,15 +1,17 @@
 system {
-    host-name {{ config.host_name }};
+    host-name {{ config.name }};
     root-authentication {
-        plain-text-password-value "{{ config.password }}"; ## SECRET-DATA
+        plain-text-password-value "{{ config.root_password }}"; ## SECRET-DATA
     }
     login {
-        user {{ config.ssh_user }} {
+        {% for user in config.users -%}
+        user {{ user.ssh_user }} {
             class super-user;
             authentication {
-                ssh-rsa "{{ config.ssh_key }}"; ## SECRET-DATA
+                ssh-rsa "{{ user.ssh_key }}"; ## SECRET-DATA
             }
         }
+        {% endfor -%}
     }
     services {
         ssh;
@@ -34,13 +36,13 @@ interfaces {
     fxp0 {
         unit 0 {
             family inet {
-                address {{ config.mgmt_ip }};
+                address {{ config.management_ip }};
             }
         }
     }
 }
 routing-options {
     static {
-        route 0.0.0.0/0 next-hop {{ config.mgmt_gateway }};
+        route 0.0.0.0/0 next-hop {{ config.management_gateway }};
     }
 }

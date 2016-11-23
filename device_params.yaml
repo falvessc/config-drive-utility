@@ -2,10 +2,13 @@
 
 name: vsrx1
 root_password: Clouds123
-management_ip: 192.168.122.11/24
-management_gateway: 192.168.122.1
+management_ip: 192.168.253.11/24
+management_gateway: 192.168.253.1
 
-ssh_user: nembery
-ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCo33zCWVdSnQm2fDAZm9WsKH5W4ejMx8eaM7LssGjqefUlIu5LsNzbMUIxMT6eaXdlAwzw0jZfrI4fDj5nmBP2p2BCGYAFODpAKLJGr/cJZj4J+jbx3zxnW/eQ3PUkpu3ncWZj58hynOWDFWChMUV5nimbr5kVlFS5vhuvpZQUT9NMKo3NXuH8a3bkqh32hWS2eXE+FPy9vvcE3CoydgdPR+Z6T5Qqf0xCZ5Fzu7mMvB7BiVaj//KHI4xo/EE6vxKAMXwZ0YeaB1LyheEV66+DCcd5a/744LXxqfdA0yp38g68DBE6LK2jRWIPyTDSxWfW2lFe2M2XsUx0TDSKSLLb dummykey@REPLACEME
+users:
+    - ssh_user: nembery
+      ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCo33zCWVdSnQm2fDAZm9WsKH5W4ejMx8eaM7LssGjqefUlIu5LsNzbMUIxMT6eaXdlAwzw0jZfrI4fDj5nmBP2p2BCGYAFODpAKLJGr/cJZj4J+jbx3zxnW/eQ3PUkpu3ncWZj58hynOWDFWChMUV5nimbr5kVlFS5vhuvpZQUT9NMKo3NXuH8a3bkqh32hWS2eXE+FPy9vvcE3CoydgdPR+Z6T5Qqf0xCZ5Fzu7mMvB7BiVaj//KHI4xo/EE6vxKAMXwZ0YeaB1LyheEV66+DCcd5a/744LXxqfdA0yp38g68DBE6LK2jRWIPyTDSxWfW2lFe2M2XsUx0TDSKSLLb dummykey@REPLACEME
+    - ssh_user: barnesry
+      ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC+meE8GUTaFAvpcZln8QPIPuc49QJW+iRMte8HH0EgS24ga3+cMmrFCXA/bllNBU3jZy2VeGTAZkhECwZjnPSE9Z6Fc/8Gw8D7ZevdPNOF4ZsUMskbrH4mqZ/SpQO3M60uizvbCpZN7TuKaZbPA9zn/gF3JLWUPpmGGiHztkzEDygZ9yRQON/qXyBrI7v8rb5zVe+8QgDNmr2msuVHlF701hM8GpIpEfP2+/7MYLxNQMJdS14NemVo7bXAP5Lw6mde//d99QHGUkm6ptTmBj/6nXUM1CFKUC/GH3n+2h6w1gtTtjUTM96rIcYi5amb8vIWa9oOA2BxidFaOOnFO5SP
 
 seeds_dir: /var/tmp/
