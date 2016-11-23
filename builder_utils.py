@@ -1,6 +1,8 @@
 import os
+import sys
+import traceback
+
 from jinja2 import Environment
-import sys, traceback
 
 
 # silly wrapper
@@ -101,5 +103,3 @@ def get_junos_default_config_template(configuration):
     except Exception as e:
         print "Caught exception in get_junos_default_config_template " + str(e)
         return None
-
-

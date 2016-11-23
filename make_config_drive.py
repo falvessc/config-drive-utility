@@ -1,7 +1,10 @@
 #!/usr/bin/env python
+# 11-23-2016
+# nembery@juniper.net
+
+import yaml
 
 import builder_utils
-import yaml
 
 with open('device_params.yaml', 'r') as f:
     configuration = yaml.load(f)
