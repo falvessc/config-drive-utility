@@ -1,0 +1,11 @@
+---
+
+name: vsrx1
+root_password: Clouds123
+management_ip: 192.168.122.11/24
+management_gateway: 192.168.122.1
+
+ssh_user: nembery
+ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCo33zCWVdSnQm2fDAZm9WsKH5W4ejMx8eaM7LssGjqefUlIu5LsNzbMUIxMT6eaXdlAwzw0jZfrI4fDj5nmBP2p2BCGYAFODpAKLJGr/cJZj4J+jbx3zxnW/eQ3PUkpu3ncWZj58hynOWDFWChMUV5nimbr5kVlFS5vhuvpZQUT9NMKo3NXuH8a3bkqh32hWS2eXE+FPy9vvcE3CoydgdPR+Z6T5Qqf0xCZ5Fzu7mMvB7BiVaj//KHI4xo/EE6vxKAMXwZ0YeaB1LyheEV66+DCcd5a/744LXxqfdA0yp38g68DBE6LK2jRWIPyTDSxWfW2lFe2M2XsUx0TDSKSLLb dummykey@REPLACEME
+
+seeds_dir: /var/tmp/
