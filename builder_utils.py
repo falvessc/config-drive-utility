@@ -5,17 +5,6 @@ import platform, os
 from jinja2 import Environment
 
 
-# if we're OSX look for the homebrew qemu ENV variable
-if platform.system() == 'Darwin':
-    try:
-        os.environ["QEMUPATH"]
-        qemu_img_command = os.path.join(os.environ["QEMUPATH"], "qemu-img")
-        print qemu_img_command
-    except KeyError:
-        print "Please set the environment variable QEMUPATH to point to OSX qemu executable"
-        sys.exit(1)
-
-
 # silly wrapper
 def check_path(path):
     if os.path.exists(path):
@@ -71,8 +60,8 @@ def create_cloud_drive(configuration, files=[]):
                 print "seed.img already created!"
                 return seed_img_name
 
-            print seed_img_name
-            print volume_name
+            print "Seed Image Name : {}".format(seed_img_name)
+            print "OSX Volume Name : {}".format(volume_name)
 
             # OSX specific. Create image and format in one step
             if not os.system("hdiutil create -nospotlight -megabytes 16 -fs MS-DOS \
@@ -96,28 +85,14 @@ def create_cloud_drive(configuration, files=[]):
                 print "seed.img already created!"
                 return seed_img_name
 
-            if not os.system(qemu_img_command + " create -f raw  %s 16M" % seed_img_name) == 0:
+            if not os.system("qemu-img create -f raw  %s 16M" % seed_img_name) == 0:
                 raise Exception("Could not create config-drive image")
             if not os.system("mkdosfs %s" % seed_img_name) == 0:
                 raise Exception("Could not create config-drive filesystem")
             if not os.system("mount %s /mnt" % seed_img_name) == 0:
                 raise Exception("Could not mount config-drive filesystem")
 
-            for name in files:
-                if '/' in name:
-                    # we need to create a directory structure here!
-                    directory = os.path.dirname(name)
-                    if not os.system("mkdir -p /mnt%s" % directory) == 0:
-                        raise Exception("Could not create confg-drive directory structure")
-                else:
-                    # ensure a leading / just in case!
-                    name = "/" + name
-
-                print "writing file: %s" % name
-                with open("/mnt%s" % name, "w") as mdf:
-                    mdf.write(files[name])
-
-            os.system("cd /mnt && tar -cvf vmm-config.tar .")
+            create_file_structure(files, os_type=platform.system())
 
         return seed_img_name
 
@@ -145,7 +120,7 @@ def get_junos_default_config_template(configuration):
         template.close()
 
         env = Environment()
-        template_data = env.from_string(template_string)    
+        template_data = env.from_string(template_string)
 
         template_data_string = template_data.render(config=configuration)
         print template_data_string
