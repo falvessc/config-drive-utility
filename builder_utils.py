@@ -1,7 +1,7 @@
 import os
 import sys
 import traceback
-
+import platform, os
 from jinja2 import Environment
 
 
@@ -12,46 +12,87 @@ def check_path(path):
     else:
         return False
 
+def create_file_structure(files, os_type=None, volume_name='CLOUD-BOOT'):
+    mount_point = None
+
+    if os_type == 'Darwin':
+        mount_point = "/Volumes/{}".format(volume_name)
+    else:
+        mount_point = '/mnt'
+
+    for name in files:
+        if '/' in name:
+            # we need to create a directory structure here!
+            directory = os.path.dirname(name)
+
+            print "mkdir -p {0}{1}".format(mount_point, directory)
+            if not os.system("mkdir -p {0}{1}".format(mount_point, directory)) == 0:
+                raise Exception("Could not create confg-drive directory structure")
+        else:
+            # ensure a leading / just in case!
+            name = "/" + name
+
+        print "writing file: %s" % name
+        with open("{0}{1}".format(mount_point, name), "w") as mdf:
+            mdf.write(files[name])
+
+    os.system("cd {0} && tar --exclude='.tar' -cvf vmm-config.tar .".format(mount_point))
+
 
 def create_cloud_drive(configuration, files=[]):
+    volume_name = None
+    seed_image_name = None
+
     try:
         print "Creating cloud drive image"
 
         seed_dir = configuration["seeds_dir"] + configuration["name"]
-        seed_img_name = seed_dir + "/config-drive.img"
 
-        if not check_path(seed_dir):
-            os.mkdir(seed_dir)
+        if platform.system() == 'Darwin':
+            # hdiutil will append .dmg to the image name
+            seed_img_name = seed_dir + "/config-drive.dmg"
+            volume_name = 'CLOUD-BOOT'
 
-        if check_path(seed_img_name):
-            print "seed.img already created!"
-            return seed_img_name
+            if not check_path(seed_dir):
+                os.mkdir(seed_dir)
 
-        if not os.system("qemu-img create -f raw  %s 16M" % seed_img_name) == 0:
-            raise Exception("Could not create config-drive image")
+            if check_path(seed_img_name):
+                print "seed.img already created!"
+                return seed_img_name
 
-        if not os.system("mkdosfs %s" % seed_img_name) == 0:
-            raise Exception("Could not create config-drive filesystem")
+            print "Seed Image Name : {}".format(seed_img_name)
+            print "OSX Volume Name : {}".format(volume_name)
 
-        if not os.system("mount %s /mnt" % seed_img_name) == 0:
-            raise Exception("Could not mount config-drive filesystem")
+            # OSX specific. Create image and format in one step
+            if not os.system("hdiutil create -nospotlight -megabytes 16 -fs MS-DOS \
+                              -volname {0} -o {1}".format(volume_name, seed_img_name)) == 0:
+                raise Exception("Could not create config-drive image")
 
-        for name in files:
+            # OSX specific. Will mount to /Volumes by default
+            if not os.system("hdiutil attach %s" % seed_img_name) == 0:
+                raise Exception("Could not mount config-drive filesystem")
 
-            if '/' in name:
-                # we need to create a directory structure here!
-                directory = os.path.dirname(name)
-                if not os.system("mkdir -p /mnt%s" % directory) == 0:
-                    raise Exception("Could not create confg-drive directory structure")
-            else:
-                # ensure a leading / just in case!
-                name = "/" + name
+            create_file_structure(files, os_type=platform.system())
 
-            print "writing file: %s" % name
-            with open("/mnt%s" % name, "w") as mdf:
-                mdf.write(files[name])
+        else:
+            # assume linux for now
+            seed_img_name = seed_dir + "/config-drive.img"
 
-        os.system("cd /mnt && tar -cvf vmm-config.tar .")
+            if not check_path(seed_dir):
+                os.mkdir(seed_dir)
+
+            if check_path(seed_img_name):
+                print "seed.img already created!"
+                return seed_img_name
+
+            if not os.system("qemu-img create -f raw  %s 16M" % seed_img_name) == 0:
+                raise Exception("Could not create config-drive image")
+            if not os.system("mkdosfs %s" % seed_img_name) == 0:
+                raise Exception("Could not create config-drive filesystem")
+            if not os.system("mount %s /mnt" % seed_img_name) == 0:
+                raise Exception("Could not mount config-drive filesystem")
+
+            create_file_structure(files, os_type=platform.system())
 
         return seed_img_name
 
@@ -62,7 +103,10 @@ def create_cloud_drive(configuration, files=[]):
         return None
 
     finally:
-        os.system("umount /mnt")
+        if platform.system() == 'Darwin':
+            os.system("hdiutil detach /Volumes/%s" % volume_name)
+        else:
+            os.system("umount /mnt")
 
 
 def get_junos_default_config_template(configuration):
@@ -78,16 +122,7 @@ def get_junos_default_config_template(configuration):
         env = Environment()
         template_data = env.from_string(template_string)
 
-        config = dict()
-
-        config["host_name"] = configuration["name"]
-        config["mgmt_ip"] = configuration["management_ip"]
-        config["mgmt_gateway"] = configuration["management_gateway"]
-        config["ssh_key"] = configuration["ssh_key"]
-        config["ssh_user"] = configuration["ssh_user"]
-        config["password"] = configuration["root_password"]
-
-        template_data_string = template_data.render(config=config)
+        template_data_string = template_data.render(config=configuration)
         print template_data_string
 
         if not configuration["seeds_dir"].endswith('/'):
